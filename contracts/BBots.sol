@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 
 contract BBots is ERC721AQueryable, ERC2981, Ownable {
-
     uint256 immutable MAX_SUPPLY;
 
     string public tokenBaseURI;
@@ -21,7 +20,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     }
 
     constructor(uint256 _maxSupply, address _royaltyReceiver) ERC721A("BubbleBots", "BBOTS") {
-        MAX_SUPPLY=_maxSupply;
+        MAX_SUPPLY = _maxSupply;
         _setDefaultRoyalty(_royaltyReceiver, 200);
     }
 
@@ -29,11 +28,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         minter = _minter;
     }
 
-    function mintFor(
-        address to,
-        uint256 quantity
-    ) external onlyMinter {
-
+    function mintFor(address to, uint256 quantity) external onlyMinter {
         require(totalSupply() + quantity <= MAX_SUPPLY, "EXCEEDS_SUPPLY");
 
         _safeMint(to, quantity);

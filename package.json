@@ -1,5 +1,5 @@
 {
-  "name": "nft-contract",
+  "name": "bubblebot-nft",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -17,15 +17,15 @@
     "verify:testnet": "npx hardhat verify --network testnet --constructor-args args.js 0xC122e33187652Ae42e1781343909ECA697a280A1",
     "deploy:mainnet": "npx hardhat run --network mainnet scripts/deployMinter.ts",
     "verify:mainnet": "npx hardhat verify --network mainnet --constructor-args args.js 0x2A644467FfD0BAfd597fE00711EDD074C1097305",
-    "prettier:fix": "npx prettier --write 'contracts/IDGAF.sol'",
-    "prettier:check": "npx prettier --check 'contracts/IDGAF.sol'",
+    "prettier:fix": "npx prettier --write 'contracts/*.sol'",
+    "prettier:check": "npx prettier --check 'contracts/*'",
     "issues": "slither . --solc-disable-warnings 2>&1",
     "deploy:mumbai": "npx hardhat run --network mumbai scripts/deployMinter.ts",
     "verify:mumbai": "npx hardhat verify --network mumbai --constructor-args args.js 0xF9fBC4cD1B411F641A9Ec83137bfaE0aCBB4D8Fd",
     "mumbai": "npx hardhat --network mumbai"
   },
-  "author": "IDGAF Dev Team",
-  "license": "ISC",
+  "author": "PeanutGames Team",
+  "license": "MIT",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-etherscan": "^2.1.8",

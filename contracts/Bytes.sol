@@ -45,11 +45,7 @@ library Bytes {
      * @return int The position of the needle starting from 0 and returning -1
      *             in the case of no matches found
      */
-    function indexOf(
-        bytes memory _base,
-        string memory _value,
-        uint256 _offset
-    ) internal pure returns (int256) {
+    function indexOf(bytes memory _base, string memory _value, uint256 _offset) internal pure returns (int256) {
         bytes memory _valueBytes = bytes(_value);
 
         assert(_valueBytes.length == 1);
@@ -75,10 +71,7 @@ library Bytes {
         return string(result);
     }
 
-    function sliceUint(bytes memory bs, uint start)
-    internal pure
-    returns (uint)
-    {
+    function sliceUint(bytes memory bs, uint start) internal pure returns (uint) {
         require(bs.length >= start + 32, "slicing out of range");
         uint x;
         assembly {

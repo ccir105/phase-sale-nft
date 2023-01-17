@@ -34,7 +34,7 @@ contract MinterProxy is Ownable {
         robotCollection = _robotCollection;
     }
 
-    function addSeeds( uint16[] memory _robotSeeds  ) external onlyOwner {
+    function addSeeds(uint16[] memory _robotSeeds) external onlyOwner {
         robots = _robotSeeds;
     }
 
@@ -43,18 +43,15 @@ contract MinterProxy is Ownable {
     }
 
     function _prepareMint(uint256 numTokens, address to) internal {
-
         totalSupply = totalSupply.add(numTokens);
-        emit NewMinterDetected(to, numTokens);
 
         uint256 robotCounts = 0;
 
-        for(uint256 i = 0; i<numTokens;i++) {
-
+        for (uint256 i = 0; i < numTokens; i++) {
             uint256 num = getRandomNum(robots.length);
             uint256 _robotId = uint256(robots[num]);
 
-            if(_robotId > 0) {
+            if (_robotId > 0) {
                 robotCounts = robotCounts.add(1);
             }
 
@@ -62,9 +59,11 @@ contract MinterProxy is Ownable {
             robots.pop();
         }
 
-        if( robotCounts > 0) {
+        if (robotCounts > 0) {
             robotCollection.mintFor(to, robotCounts);
         }
+
+        emit NewMinterDetected(to, numTokens);
     }
 
     function mintYourBot(uint256 numTokens) external payable {
@@ -110,7 +109,9 @@ contract MinterProxy is Ownable {
     }
 
     function getRandomNum(uint256 upper) internal view returns (uint256) {
-        uint256 random = uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), block.coinbase, block.difficulty, msg.sender)));
+        uint256 random = uint256(
+            keccak256(abi.encodePacked(blockhash(block.number - 1), block.coinbase, block.difficulty, msg.sender))
+        );
         return random % upper;
     }
 }

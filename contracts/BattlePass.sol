@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Bytes.sol";
 
 contract BattlePass is ERC721Royalty, Ownable {
-
     uint256 immutable MAX_SUPPLY;
 
     string tokenBaseURI;
@@ -15,14 +14,12 @@ contract BattlePass is ERC721Royalty, Ownable {
 
     address imx;
 
-    modifier imxOrAdmin()
-    {
+    modifier isImx() {
         require(msg.sender == imx, "NOT AUTHORIZED");
         _;
     }
 
-    constructor(uint256 _supply, address _imx, address royaltyReceiver) ERC721("BATTLE PASS", "BTL-PASS")
-    {
+    constructor(uint256 _supply, address _imx, address royaltyReceiver) ERC721("BATTLE PASS", "BTL-PASS") {
         MAX_SUPPLY = _supply;
         imx = _imx;
         _setDefaultRoyalty(royaltyReceiver, 200);
@@ -30,9 +27,8 @@ contract BattlePass is ERC721Royalty, Ownable {
 
     event AssetMinted(address indexed to, uint256 indexed tokenId, bytes blueprint);
 
-    function mintFor( address to, uint256 quantity, bytes calldata mintingBlob  ) external imxOrAdmin
-    {
-        require( totalSupply < MAX_SUPPLY && quantity == 1, "SUPPLY_EXCEEDS" );
+    function mintFor(address to, uint256 quantity, bytes calldata mintingBlob) external isImx {
+        require(totalSupply < MAX_SUPPLY && quantity == 1, "SUPPLY_EXCEEDS");
 
         totalSupply += 1;
 
@@ -43,8 +39,7 @@ contract BattlePass is ERC721Royalty, Ownable {
         emit AssetMinted(to, _tokenId, mintingBlob);
     }
 
-    function getTokenId(bytes calldata blob) internal pure returns(uint256)
-    {
+    function getTokenId(bytes calldata blob) internal pure returns (uint256) {
         int256 colonIndex = Bytes.indexOf(blob, ":", 0);
 
         require(colonIndex >= 0, "Separator must exist");
@@ -52,24 +47,20 @@ contract BattlePass is ERC721Royalty, Ownable {
         return Bytes.toUint(blob[1:uint256(colonIndex) - 1]);
     }
 
-    function updateBaseUri(string memory baseURI) external onlyOwner
-    {
+    function updateBaseUri(string memory baseURI) external onlyOwner {
         tokenBaseURI = baseURI;
     }
 
-    function _baseURI() internal view virtual override returns (string memory)
-    {
+    function _baseURI() internal view virtual override returns (string memory) {
         return tokenBaseURI;
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory)
-    {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
         return string(abi.encodePacked(_baseURI(), Strings.toString(tokenId)));
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721Royalty) returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Royalty) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

@@ -8,7 +8,7 @@ library Parse {
     // Split the minting blob into token_id and blueprint portions
     // {token_id}:{blueprint,tokenSeed}
 
-    function parseBlob(bytes calldata blob) public pure returns(uint256, string memory, string memory) {
+    function parseBlob(bytes calldata blob) public pure returns (uint256, string memory, string memory) {
         int256 colonIndex = Bytes.indexOf(blob, ":", 0);
         require(colonIndex >= 0, "Separator must exist");
         uint256 tokenID = Bytes.toUint(blob[1:uint256(colonIndex) - 1]);
