@@ -5,7 +5,7 @@
   "scripts": {
     "accounts": "npx hardhat accounts",
     "compile": "npx hardhat compile",
-    "lint": "solhint -c solhint.json --ignore-path .solhintignore -w 0 ./contracts/IDGAF.sol",
+    "lint": "solhint -c solhint.json --ignore-path .solhintignore -w 0 ./contracts/*.sol",
     "test": "npx hardhat test",
     "test:dotonly": "dot-only-hunter test",
     "coverage": "npx hardhat coverage",
@@ -17,7 +17,7 @@
     "verify:testnet": "npx hardhat verify --network testnet --constructor-args args.js 0xC122e33187652Ae42e1781343909ECA697a280A1",
     "deploy:mainnet": "npx hardhat run --network mainnet scripts/deployMinter.ts",
     "verify:mainnet": "npx hardhat verify --network mainnet --constructor-args args.js 0x2A644467FfD0BAfd597fE00711EDD074C1097305",
-    "prettier:fix": "npx prettier --write 'contracts/*.sol'",
+    "format:fix": "npx prettier --write 'contracts/*.sol'",
     "prettier:check": "npx prettier --check 'contracts/*'",
     "issues": "slither . --solc-disable-warnings 2>&1",
     "deploy:mumbai": "npx hardhat run --network mumbai scripts/deployMinter.ts",
@@ -60,8 +60,11 @@
     "@openzeppelin/contracts": "^4.5.0",
     "@openzeppelin/contracts-upgradeable": "^4.4.2",
     "@openzeppelin/hardhat-upgrades": "^1.14.0",
+    "aws-sdk": "^2.1301.0",
+    "axios": "^1.2.4",
     "erc20-snapshot": "^1.0.2",
     "erc721a": "^4.2.3",
+    "ethers-multicall": "^0.2.3",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.27"
   }

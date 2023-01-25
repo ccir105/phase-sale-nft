@@ -6,10 +6,13 @@ import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 import '@nomiclabs/hardhat-web3';
 import accounts from './test/mock/accounts.json';
-import initTask from './tasks/minter';
+import {initTask} from './tasks/base';
+import minterTask from './tasks/minter';
 import '@openzeppelin/hardhat-upgrades';
 require('dotenv').config();
+
 initTask(task);
+minterTask(task);
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more

@@ -1,1 +1,6 @@
-{"genesis":"0x37935af1239E33879C671994C171654Ddb0BC812"}
+{
+  "testnet": {
+    "battlePass": "0x04f53D3F45ecd68B63157BD6fB8e4dB65804F04e",
+    "robots": "0xa9e6C4AdfF79964384b8353346FB08B8E25A375b"
+  }
+}

@@ -4,38 +4,188 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "erc721a/contracts/extensions/ERC721AQueryable.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract BBots is ERC721AQueryable, ERC2981, Ownable {
-    uint256 immutable MAX_SUPPLY;
+
+    uint256 public constant MAX_SUPPLY = 999;
+
+    uint256 public constant MaxMint = 3;
 
     string public tokenBaseURI;
 
-    address minter;
+    using SafeMath for uint256;
 
-    event AssetMinted(address indexed to, uint256 indexed tokenId, bytes blueprint);
+    struct SaleConfig {
+        uint256 startTime; //ftb sale start timestamp
+        bool ended; //true when ended
+        uint256 ftbWindow;
+        uint256 wlWindow;
+    }
 
-    modifier onlyMinter() {
-        require(msg.sender == minter, "NOT AUTHORIZED");
+    SaleConfig mintConfig;
+
+    bytes32 whitelistRoot;
+    bytes32 ftbHolderRoot;
+
+    uint256 public costPrice = 0.08 ether;
+    address immutable treasury;
+
+    modifier MintValidation(uint256 quantity) {
+        require(_saleStarted(), "SALE_NOT_STARTED");
+        require(totalSupply() + quantity <= MAX_SUPPLY, "EXCEEDS_SUPPLY");
+        require(msg.value >= costPrice * quantity, "MINT_FAILED");
         _;
     }
 
-    constructor(uint256 _maxSupply, address _royaltyReceiver) ERC721A("BubbleBots", "BBOTS") {
-        MAX_SUPPLY = _maxSupply;
-        _setDefaultRoyalty(_royaltyReceiver, 200);
+    constructor(address _royaltyReceiver) ERC721A("BubbleBots", "BBOTS") {
+        _setDefaultRoyalty(_royaltyReceiver, 250);
+        treasury = _royaltyReceiver;
+
+        mintConfig.wlWindow = 60 * 60 * 24; //a day
+        mintConfig.ftbWindow = 60 * 60; //an hour
     }
 
-    function setMinter(address _minter) external onlyOwner {
-        minter = _minter;
+    function _saleStarted() internal view returns (bool) {
+        if (mintConfig.ended) {
+            return false;
+        }
+
+        return mintConfig.startTime > 0 && block.timestamp >= mintConfig.startTime;
     }
 
-    function mintFor(address to, uint256 quantity) external onlyMinter {
-        require(totalSupply() + quantity <= MAX_SUPPLY, "EXCEEDS_SUPPLY");
+    function _isFtbSale( ) internal view returns (bool) {
 
-        _safeMint(to, quantity);
+        uint256 ftbSaleEndTime = mintConfig.startTime.add(mintConfig.ftbWindow);
+
+        return block.timestamp <= ftbSaleEndTime;
+    }
+
+    function _isWhiteListSale() internal view returns (bool) {
+
+        uint256 ftbSaleEndTime = mintConfig.startTime.add(mintConfig.ftbWindow);
+
+        uint256 wlSaleEndTime = ftbSaleEndTime.add(mintConfig.wlWindow);
+
+        return block.timestamp <= wlSaleEndTime && block.timestamp >= ftbSaleEndTime;
+    }
+
+    function _isPublicSale() internal view returns (bool) {
+
+        uint256 ftbSaleEndTime = mintConfig.startTime.add(mintConfig.ftbWindow);
+
+        uint256 wlSaleEndTime = ftbSaleEndTime.add(mintConfig.wlWindow);
+
+        return block.timestamp >= wlSaleEndTime;
+
+    }
+
+    function mintBBots(
+        uint256 quantity,
+        bytes32[] calldata merkleProof,
+        uint256 approvedQt
+    ) external payable MintValidation(quantity) {
+
+        if (_isFtbSale()) {
+
+            bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender, approvedQt));
+
+            require(verifyIfWhiteListed(ftbHolderRoot, merkleProof, merkleLeaf), "NOT_WHITELISTED");
+
+            require(balanceOf(msg.sender).add(quantity) <= approvedQt, "EXCEEDS_MAX");
+
+            _safeMint(msg.sender, quantity);
+
+        }
+
+        if(_isWhiteListSale()) {
+
+            bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender));
+
+            require(verifyIfWhiteListed(whitelistRoot, merkleProof, merkleLeaf), "NOT_WHITELISTED");
+
+            require(balanceOf(msg.sender).add(quantity) <= MaxMint, "EXCEEDS_MAX");
+
+            _safeMint(msg.sender, quantity);
+        }
+
+        if( _isPublicSale() ) {
+            _safeMint(msg.sender, quantity);
+        }
+
+        _withdrawEth();
+    }
+
+    function verifyIfWhiteListed(
+        bytes32 _root,
+        bytes32[] calldata _merkleProof,
+        bytes32 leaf
+    ) public pure returns (bool) {
+        return MerkleProof.verify(_merkleProof, _root, leaf);
     }
 
     function updateBaseUri(string memory baseURI) external onlyOwner {
         tokenBaseURI = baseURI;
+    }
+
+    function startedTime() public view returns(uint256) {
+        return mintConfig.startTime;
+    }
+
+    function saleStat() public view returns (uint8) {
+
+        if (_saleStarted()) {
+
+            if (_isPublicSale()) {
+                return 3;
+            }
+
+            if (_isWhiteListSale()) {
+                return 2;
+            }
+
+            if (_isFtbSale()) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    function updateCostPrice(uint256 _price) external onlyOwner {
+        costPrice = _price;
+    }
+
+    function setWhitelistRoots(bytes32 _whiteListRoot, bytes32 _ftbHolderRoot) external onlyOwner {
+        whitelistRoot = _whiteListRoot;
+        ftbHolderRoot = _ftbHolderRoot;
+    }
+
+    function startSale() external onlyOwner {
+
+        require(!_saleStarted(), 'ALREADY_STARTED');
+        mintConfig.startTime = block.timestamp;
+    }
+
+    function endSale() external onlyOwner {
+        mintConfig.ended = true;
+    }
+
+    function switchSalePhase(uint256 _ftbWindow, uint256 _wlWindow) external onlyOwner {
+        mintConfig.startTime = block.timestamp;
+        mintConfig.ftbWindow = _ftbWindow;
+        mintConfig.wlWindow = _wlWindow;
+    }
+
+    function setDefaultRoyalty(address _receiver, uint96 _feeNumerator) external onlyOwner {
+        _setDefaultRoyalty(_receiver, _feeNumerator);
+    }
+
+    function _withdrawEth() internal {
+        (bool os, ) = payable(treasury).call{value: address(this).balance}("");
+        require(os);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
@@ -49,9 +199,5 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC721A, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
-    }
-
-    function setDefaultRoyalty(address _receiver, uint96 _feeNumerator) external onlyOwner {
-        _setDefaultRoyalty(_receiver, _feeNumerator);
     }
 }

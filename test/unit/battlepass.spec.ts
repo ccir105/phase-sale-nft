@@ -1,16 +1,15 @@
 import {expect} from 'chai';
-import {ethers, web3} from 'hardhat';
+import {ethers} from 'hardhat';
 
-describe('BattlePass', function () {
+describe.only('BattlePass', function () {
     let bubbleBot;
     let signers;
-    // let minterProxy;
 
     before(async () => {
         signers = await ethers.getSigners();
         const BubbleBot = await ethers.getContractFactory('BattlePass', signers[0]);
 
-        bubbleBot = await BubbleBot.deploy(100, signers[0].address, signers[1].address);
+        bubbleBot = await BubbleBot.deploy( signers[0].address, signers[1].address);
 
         await bubbleBot.deployed();
     });
@@ -24,7 +23,7 @@ describe('BattlePass', function () {
         for (let i = 0; i < 100; i++) {
             await bubbleBot
                 .connect(signers[0])
-                .mintFor(signers[1].address, 1, web3.utils.asciiToHex(`{${i}}:{IPFSHASH${i},12.23.34.45}`));
+                .mintFor(signers[1].address, 1, ethers.utils.toUtf8Bytes(`{${i}}:{IPFSHASH${i},12.23.34.45}`));
         }
 
         const balance = await bubbleBot.balanceOf(signers[1].address);
