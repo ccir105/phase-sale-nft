@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "hardhat/console.sol";
 
 contract BBots is ERC721AQueryable, ERC2981, Ownable {
-
     uint256 public constant MAX_SUPPLY = 999;
 
     uint256 public constant MaxMint = 3;
@@ -56,15 +55,13 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         return mintConfig.startTime > 0 && block.timestamp >= mintConfig.startTime;
     }
 
-    function _isFtbSale( ) internal view returns (bool) {
-
+    function _isFtbSale() internal view returns (bool) {
         uint256 ftbSaleEndTime = mintConfig.startTime.add(mintConfig.ftbWindow);
 
         return block.timestamp <= ftbSaleEndTime;
     }
 
     function _isWhiteListSale() internal view returns (bool) {
-
         uint256 ftbSaleEndTime = mintConfig.startTime.add(mintConfig.ftbWindow);
 
         uint256 wlSaleEndTime = ftbSaleEndTime.add(mintConfig.wlWindow);
@@ -73,13 +70,11 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     }
 
     function _isPublicSale() internal view returns (bool) {
-
         uint256 ftbSaleEndTime = mintConfig.startTime.add(mintConfig.ftbWindow);
 
         uint256 wlSaleEndTime = ftbSaleEndTime.add(mintConfig.wlWindow);
 
         return block.timestamp >= wlSaleEndTime;
-
     }
 
     function mintBBots(
@@ -87,9 +82,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         bytes32[] calldata merkleProof,
         uint256 approvedQt
     ) external payable MintValidation(quantity) {
-
         if (_isFtbSale()) {
-
             bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender, approvedQt));
 
             require(verifyIfWhiteListed(ftbHolderRoot, merkleProof, merkleLeaf), "NOT_WHITELISTED");
@@ -97,11 +90,9 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
             require(balanceOf(msg.sender).add(quantity) <= approvedQt, "EXCEEDS_MAX");
 
             _safeMint(msg.sender, quantity);
-
         }
 
-        if(_isWhiteListSale()) {
-
+        if (_isWhiteListSale()) {
             bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender));
 
             require(verifyIfWhiteListed(whitelistRoot, merkleProof, merkleLeaf), "NOT_WHITELISTED");
@@ -111,7 +102,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
             _safeMint(msg.sender, quantity);
         }
 
-        if( _isPublicSale() ) {
+        if (_isPublicSale()) {
             _safeMint(msg.sender, quantity);
         }
 
@@ -130,14 +121,12 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         tokenBaseURI = baseURI;
     }
 
-    function startedTime() public view returns(uint256) {
+    function startedTime() external view returns (uint256) {
         return mintConfig.startTime;
     }
 
-    function saleStat() public view returns (uint8) {
-
+    function getSaleStatus() external view returns (uint8) {
         if (_saleStarted()) {
-
             if (_isPublicSale()) {
                 return 3;
             }
@@ -164,8 +153,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     }
 
     function startSale() external onlyOwner {
-
-        require(!_saleStarted(), 'ALREADY_STARTED');
+        require(!_saleStarted(), "ALREADY_STARTED");
         mintConfig.startTime = block.timestamp;
     }
 

@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Bytes.sol";
 
 contract BattlePass is ERC721Royalty, Ownable {
-    uint256 constant MAX_SUPPLY = 999;
+    uint256 public constant MAX_SUPPLY = 999;
 
     string tokenBaseURI;
 
@@ -14,7 +14,7 @@ contract BattlePass is ERC721Royalty, Ownable {
 
     address imx;
 
-    modifier isImx() {
+    modifier isMinter() {
         require(msg.sender == imx || msg.sender == owner(), "NOT AUTHORIZED");
         _;
     }
@@ -26,7 +26,11 @@ contract BattlePass is ERC721Royalty, Ownable {
 
     event AssetMinted(address indexed to, uint256 indexed tokenId, bytes blueprint);
 
-    function mintFor(address to, uint256 quantity, bytes calldata mintingBlob) external isImx {
+    function mintFor(
+        address to,
+        uint256 quantity,
+        bytes calldata mintingBlob
+    ) external isMinter {
         require(totalSupply < MAX_SUPPLY && quantity == 1, "SUPPLY_EXCEEDS");
 
         totalSupply += 1;

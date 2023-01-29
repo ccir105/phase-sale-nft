@@ -8,15 +8,20 @@ import '@nomiclabs/hardhat-web3';
 import accounts from './test/mock/accounts.json';
 import {initTask} from './tasks/base';
 import minterTask from './tasks/minter';
+import imxTask from './tasks/imx'
+import NftTask from './tasks/nft';
 import '@openzeppelin/hardhat-upgrades';
-require('dotenv').config();
+import Config from './config'
 
 initTask(task);
 minterTask(task);
+imxTask(task);
+NftTask(task);
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
-
+//
+// // You need to export an object to set up your config
+// // Go to https://hardhat.org/config/ to learn more
+//
 const config: HardhatUserConfig | any = {
   solidity: {
     compilers: [
@@ -40,7 +45,7 @@ const config: HardhatUserConfig | any = {
       gas: 25e6,
     },
     live: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA}`,
+      url: `https://mainnet.infura.io/v3/${Config.INFURA_KEY}`,
       chainId: 1,
       accounts: accounts.privateKey,
     },
@@ -50,7 +55,7 @@ const config: HardhatUserConfig | any = {
       accounts: accounts.privateKey,
     },
     testnet: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA}`,
+      url: `https://goerli.infura.io/v3/${Config.INFURA_KEY}`,
       chainId: 5,
       accounts: accounts.privateKey,
       gasMultiplier: 2,
@@ -60,9 +65,9 @@ const config: HardhatUserConfig | any = {
     enabled: true,
     currency: 'USD',
   },
-  etherscan: {
-    apiKey: '1E46ZC7H9TYX6QM4FUHPES85TQCKRR28AU',
-  },
+  // etherscan: {
+  //   apiKey: Config.ETHERSCAN,
+  // },
   abiExporter: {
     path: './data/abi',
     clear: true,

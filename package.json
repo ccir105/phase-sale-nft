@@ -22,7 +22,9 @@
     "issues": "slither . --solc-disable-warnings 2>&1",
     "deploy:mumbai": "npx hardhat run --network mumbai scripts/deployMinter.ts",
     "verify:mumbai": "npx hardhat verify --network mumbai --constructor-args args.js 0xF9fBC4cD1B411F641A9Ec83137bfaE0aCBB4D8Fd",
-    "mumbai": "npx hardhat --network mumbai"
+    "mumbai": "npx hardhat --network mumbai",
+    "create-project": "npx hardhat --network testnet run scripts/deployBubbleBot.ts",
+    "upload-images": "npx hardhat --network hardhat get-config"
   },
   "author": "PeanutGames Team",
   "license": "MIT",
@@ -57,15 +59,19 @@
     "web3": "^1.6.1"
   },
   "dependencies": {
+    "@imtbl/core-sdk": "^1.0.0",
     "@openzeppelin/contracts": "^4.5.0",
     "@openzeppelin/contracts-upgradeable": "^4.4.2",
     "@openzeppelin/hardhat-upgrades": "^1.14.0",
+    "@pinata/sdk": "^2.1.0",
     "aws-sdk": "^2.1301.0",
     "axios": "^1.2.4",
     "erc20-snapshot": "^1.0.2",
     "erc721a": "^4.2.3",
     "ethers-multicall": "^0.2.3",
+    "ipfs-http-client": "56.0.2",
     "keccak256": "^1.0.6",
-    "merkletreejs": "^0.2.27"
+    "merkletreejs": "^0.2.27",
+    "read-excel-file": "^5.5.3"
   }
 }

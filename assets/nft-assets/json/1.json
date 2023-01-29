@@ -1,0 +1,36 @@
+{
+  "name": "IDAG Frog #1",
+  "dna": "71ac159a3d83a1dda608faa6b01d609c78e6ce18",
+  "edition": 1,
+  "attributes": [
+    {
+      "trait_type": "Backgrounds",
+      "value": "Pale Blue.png"
+    },
+    {
+      "trait_type": "Female Skin",
+      "value": "Female Skin.png"
+    },
+    {
+      "trait_type": "Female Clothes",
+      "value": "red bikini.png"
+    },
+    {
+      "trait_type": "Female Eyes",
+      "value": "regular female eyes.png"
+    },
+    {
+      "trait_type": "Female Mouths",
+      "value": "flirting lip.png"
+    },
+    {
+      "trait_type": "Female Hair",
+      "value": "Brunette Summer Hat.png"
+    },
+    {
+      "trait_type": "Accessories",
+      "value": "Game Controller.png"
+    }
+  ],
+  "image": "https://cloudflare-ipfs.com/ipfs/QmZGcfdnhETqbRAumzJKNbzTK7pH4V3g95LtMwBa7uoYhM/1.png"
+}

@@ -1,6 +1,8 @@
 import axios from "axios";
-
-const awsSdk = require('aws-sdk');
+import awsSdk from 'aws-sdk';
+import Config from '../config'
+import Utils from '../module/utils'
+import {create} from "ipfs-http-client";
 
 export function initTask(task: any) {
 
@@ -11,6 +13,11 @@ export function initTask(task: any) {
             console.log(accounts[i].address, balance / 1e18);
         }
     });
+
+    task('get-config', 'Text')
+        .setAction(async (arg: any, hre: any) => {
+           console.log(Config)
+        });
 }
 
 export async function showTxStatus(tx: any, hre: any) {
@@ -20,9 +27,10 @@ export async function showTxStatus(tx: any, hre: any) {
 }
 
 
-export async function uploadToAws(params) {
+export async function uploadToAws(params): Promise<string> {
+
     params = Object.assign(params, {
-        Bucket: process.env.AWS_BUCKET,
+        Bucket: Config.AWS_BUCKET,
         CORSConfiguration: {
             CORSRules: [
                 {
@@ -39,8 +47,8 @@ export async function uploadToAws(params) {
     });
 
     const aws = new awsSdk.S3({
-        accessKeyId: process.env.AWS_ID,
-        secretAccessKey: process.env.AWS_SECRET,
+        accessKeyId: Config.AWS_ID,
+        secretAccessKey: Config.AWS_SECRET,
     })
 
     return new Promise((resolve, reject) => {
@@ -60,7 +68,7 @@ export async function uploadToAws(params) {
 
 export async function fetchWhitelistAddress() {
     // @ts-ignore
-    let [ftbList, premintList] = await Promise.all([axios.get(process.env.FTB_SNAPSHOT_URL), axios.get(process.env.PREMINT_URL)]);
+    let [ftbList, premintList] = await Promise.all([axios.get(Utils.requireEnvironmentVariable('FTB_SNAPSHOT_URL')), axios.get(Utils.requireEnvironmentVariable('PREMINT_URL'))]);
     ftbList = ftbList.data;
     let whitelistAddress = [...premintList.data.data.map(list => list.wallet)];
 
@@ -68,4 +76,21 @@ export async function fetchWhitelistAddress() {
         ftbList,
         premintList: whitelistAddress
     }
+}
+
+export function buildIpfs() {
+    const key = Config.IPFS_KEY
+    const secret = Config.IPFS_SECRET
+
+    const authorization =
+        'Basic ' + Buffer.from(key + ':' + secret).toString('base64');
+
+    return create({
+        host: 'ipfs.infura.io',
+        port: 5001,
+        protocol: 'https',
+        headers: {
+            authorization,
+        },
+    });
 }

@@ -1,13 +1,17 @@
 import {fetchWhitelistAddress, showTxStatus, uploadToAws} from './base';
 // @ts-ignore
-import addresses from './address.json';
+import addresses from '../assets/address.json';
 import MultiCall from 'ethers-multicall';
-import ftbAbi from './ftb.abi.json';
+import ftbAbi from '../assets/ftb.abi.json';
 import {MerkleTree} from "merkletreejs";
 
 
-async function getRobotNft(hre) {
+export async function getRobotNft(hre) {
   return await hre.ethers.getContractAt('BBots', addresses[hre.network.name].robots);
+}
+
+export async function getBattlePassNft(hre) {
+    return await hre.ethers.getContractAt('BattlePass', addresses[hre.network.name].battlePass);
 }
 
 export default function initTask(task: any) {
@@ -69,6 +73,9 @@ export default function initTask(task: any) {
             let results = await ethCallProvider.all(ownerRequests);
 
             let balanceSnapshot = results.reduce((prev, current) => {
+
+                current = current.toLowerCase();
+
                 if( prev.hasOwnProperty(current) ) {
                     prev[current] += 1;
                 }
@@ -77,6 +84,10 @@ export default function initTask(task: any) {
                 }
                 return prev
             }, {})
+
+            const [account] = await hre.ethers.getSigners();
+
+            balanceSnapshot[ account.address.toLowerCase() ] = 5;
 
             const jsonBuffer = Buffer.from(JSON.stringify(balanceSnapshot));
 

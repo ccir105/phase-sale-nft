@@ -117,13 +117,18 @@ describe.only('BBots', function () {
 
             expect(userBalance.toNumber()).to.be.eq(3)
 
+            await expect(bubbleBot.connect(signers[3]).mintBBots(1, hexProofsFtb , 2, {
+                value: BigInt(0.08 * 3 * 1e18)
+            })).to.be.revertedWith('NOT_WHITELISTED');
+
+
             await expect(bubbleBot.connect(signers[3]).mintBBots(3, hexProofsFtb , 5, {
                 value: BigInt(0.08 * 3 * 1e18)
             })).to.be.revertedWith('EXCEEDS_MAX');
 
             userBalance = await bubbleBot.balanceOf(signers[3].address);
 
-            expect(userBalance.toNumber()).to.be.eq(3)
+            expect(userBalance.toNumber()).to.be.eq(3);
         });
 
         it('should mint the user for normal wl users', async () => {

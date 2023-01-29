@@ -1,0 +1,13 @@
+{
+  "projectId":1827,
+  "description": "Peanut Game Test",
+  "collection_image_url": "https://peanutgames.com/assets/images/HeroShot.png",
+  "icon_url": "https://peanutgames.com/assets/img/LogoPg.svg",
+  "imx_image_url": "https://cloudflare-ipfs.com/ipfs/QmZ5YECGXUR4uCTssR9LCnNj8uEisS5JFXgA4RyCThRT5z",
+  "metadata": [
+    {
+      "name": "Battle Pass",
+      "type": "text"
+    }
+  ]
+}
