@@ -39,7 +39,9 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         _;
     }
 
-    constructor(address _royaltyReceiver) ERC721A("BubbleBots", "BBOTS") {
+    event NewMinter(address indexed minter, uint256 qty);
+
+    constructor(address _royaltyReceiver) ERC721A("BubbleBots-Test", "BBOTS-TEST") {
         _setDefaultRoyalty(_royaltyReceiver, 250);
         treasury = _royaltyReceiver;
 
@@ -77,43 +79,56 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         return block.timestamp >= wlSaleEndTime;
     }
 
+    function _mintRobot(address _minter, uint256 _qty) internal {
+        _safeMint(_minter, _qty);
+        emit NewMinter(_minter, _qty);
+    }
+
     function mintBBots(
         uint256 quantity,
         bytes32[] calldata merkleProof,
         uint256 approvedQt
     ) external payable MintValidation(quantity) {
         if (_isFtbSale()) {
-            bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender, approvedQt));
-
-            require(verifyIfWhiteListed(ftbHolderRoot, merkleProof, merkleLeaf), "NOT_WHITELISTED");
+            require(verifyFtbWhiteList(merkleProof, approvedQt), "NOT_WHITELISTED");
 
             require(balanceOf(msg.sender).add(quantity) <= approvedQt, "EXCEEDS_MAX");
 
-            _safeMint(msg.sender, quantity);
+            _mintRobot(msg.sender, quantity);
         }
 
         if (_isWhiteListSale()) {
-            bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender));
-
-            require(verifyIfWhiteListed(whitelistRoot, merkleProof, merkleLeaf), "NOT_WHITELISTED");
+            require(verifyNormalWhiteList(merkleProof), "NOT_WHITELISTED");
 
             require(balanceOf(msg.sender).add(quantity) <= MaxMint, "EXCEEDS_MAX");
 
-            _safeMint(msg.sender, quantity);
+            _mintRobot(msg.sender, quantity);
         }
 
         if (_isPublicSale()) {
-            _safeMint(msg.sender, quantity);
+            _mintRobot(msg.sender, quantity);
         }
 
         _withdrawEth();
     }
 
-    function verifyIfWhiteListed(
+    function verifyFtbWhiteList(bytes32[] calldata _merkleProof, uint256 quantity) public view returns (bool) {
+        bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender, quantity));
+
+        return _verifyIfWhiteListed(ftbHolderRoot, _merkleProof, merkleLeaf);
+    }
+
+    function verifyNormalWhiteList(bytes32[] calldata _merkleProof) public view returns (bool) {
+        bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender));
+
+        return _verifyIfWhiteListed(whitelistRoot, _merkleProof, merkleLeaf);
+    }
+
+    function _verifyIfWhiteListed(
         bytes32 _root,
         bytes32[] calldata _merkleProof,
         bytes32 leaf
-    ) public pure returns (bool) {
+    ) internal pure returns (bool) {
         return MerkleProof.verify(_merkleProof, _root, leaf);
     }
 

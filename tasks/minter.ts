@@ -4,7 +4,7 @@ import addresses from '../assets/address.json';
 import MultiCall from 'ethers-multicall';
 import ftbAbi from '../assets/ftb.abi.json';
 import {MerkleTree} from "merkletreejs";
-
+import fetch from 'node-fetch';
 
 export async function getRobotNft(hre) {
   return await hre.ethers.getContractAt('BBots', addresses[hre.network.name].robots);
@@ -45,6 +45,15 @@ export default function initTask(task: any) {
         await showTxStatus(tx, hre);
     });
 
+    task('update-price', 'Update cost price')
+        .addParam('price', 'THe price of nft')
+        .setAction(async (taskArgs: any, hre: any) => {
+            let price = hre.ethers.utils.parseEther(taskArgs.price)
+            let minter = await getRobotNft(hre);
+            let tx = await minter.updateCostPrice(price);
+            await showTxStatus(tx, hre);
+    })
+
     task('migrate-ipfs', 'Update the base uri')
     .addParam('url', 'New Base Url eg. ipfs ')
     .setAction(async (arg: any, hre: any) => {
@@ -52,6 +61,15 @@ export default function initTask(task: any) {
       let tx = await minter.updateBaseUri(arg.url);
       await showTxStatus(tx, hre);
     });
+
+    task('force-opensea', 'Force refresh on opensea')
+        .setAction(async (arg: any, hre: any) => {
+            let minter = await getRobotNft(hre);
+            for (let tokenId = 0; tokenId <= await minter.totalSupply(); tokenId++) {
+                const url = `https://api.opensea.io/api/v1/asset/${minter.address}/${tokenId}/?force_update=true`;
+                await fetch(url);
+            }
+        });
 
     task('ftb-snapshot', 'Take FTB holder snapshot')
         .setAction(async (arg: any, hre: any) => {
@@ -101,6 +119,36 @@ export default function initTask(task: any) {
             await uploadToAws(params);
         });
 
+    task('test-mint', 'Test Mint')
+        .setAction(async (arg: any, hre: any) => {
+            const collection = await getRobotNft(hre);
+            const [,minterUser] = await hre.ethers.getSigners();
+
+            let tx = await collection.connect(minterUser).mintBBots(10, [], 0, {
+                value: BigInt(0.08 * 10 * 1e18)
+            });
+            await showTxStatus(tx, hre);
+        });
+
+    task('verify-wl', 'Verify Whitelist')
+        .addParam('amount', 'User Approved Balance Amount')
+        .addParam('address', 'User Address')
+        .setAction(async (arg: any, hre: any) => {
+
+            const {ftbList,} = await fetchWhitelistAddress();
+
+            const ftbUserLeafs = Object.keys(ftbList).map((address) =>
+                hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address', 'uint256'], [address, ftbList[address]]))
+            );
+
+            const ftbTree = new MerkleTree(ftbUserLeafs, hre.ethers.utils.keccak256, {sort: true})
+
+            const leaf = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address', 'uint256'], [arg.address, 5]));
+
+            const collectionCtr = await getRobotNft(hre);
+
+            console.log(await collectionCtr.verifyFtbWhiteList(ftbTree.getHexProof(leaf), 5));
+        });
 
     task('whitelist-root', 'Update Whitelist root with pre-mint url and ftb snapshot')
         .setAction(async (arg: any, hre: any) => {
@@ -115,13 +163,13 @@ export default function initTask(task: any) {
                 hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address'], [address]))
             )
 
-            const ftbTree = new MerkleTree(ftbUserLeafs, hre.web3.utils.sha3, {sort: true})
+            const ftbTree = new MerkleTree(ftbUserLeafs, hre.ethers.utils.keccak256, {sort: true})
 
-            const whitelistTree = new MerkleTree(premintUserLeafs, hre.web3.utils.sha3, {sort: true})
+            const whitelistTree = new MerkleTree(premintUserLeafs, hre.ethers.utils.keccak256, {sort: true})
 
             const bubbleBotContract = await getRobotNft(hre);
 
-            const tx = await bubbleBotContract.setWhitelistRoots(ftbTree.getHexRoot(), whitelistTree.getHexRoot());
+            const tx = await bubbleBotContract.setWhitelistRoots(whitelistTree.getHexRoot(), ftbTree.getHexRoot());
 
             await showTxStatus(tx, hre);
         })

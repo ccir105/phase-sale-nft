@@ -3,7 +3,7 @@ import Address from '../assets/address.json'
 import {buildIpfs, uploadToAws} from "./base";
 import {urlSource} from "ipfs-http-client";
 import Config from "../config";
-import ImxConfig from '../assets/imx.json'
+import ImxConfig from '../assets/backup.json'
 
 export default function initTask(task: any) {
 
@@ -14,16 +14,11 @@ export default function initTask(task: any) {
     }
 
     task('create-project', 'Create Project On Imx')
-        .addParam('name', 'Project Name')
-        .addParam('email', 'Project Email')
         .setAction(async (taskArgs: any, hre: any) => {
 
             const signer = getDeployer(hre);
 
-            await ImxModule.createProject(signer, hre.network.name, {
-                companyName: 'Peanut Games',
-                ...taskArgs
-            });
+            await ImxModule.createProject(signer, hre.network.name);
     });
 
     task('mint-imx', 'Mint On Imx')
@@ -43,6 +38,7 @@ export default function initTask(task: any) {
 
     task('create-imx-collection', 'Create and Upload Metadata on aws for imx')
         .addOptionalParam('url', 'Image Url to use as base')
+        .addOptionalParam('update', 'Upload and update metadata url')
         .setAction(async (taskArgs: any, hre: any) => {
 
            const signer = getDeployer(hre);
@@ -65,6 +61,7 @@ export default function initTask(task: any) {
                 imageUrl = ImxConfig.imx_image_url
             }
 
+            if( !taskArgs.update ) return;
 
             for(let i = 0; i < Config.MAX_SUPPLY; i++ ) {
                 const metadataForNft = {
@@ -73,7 +70,8 @@ export default function initTask(task: any) {
                     name: Config.IMX_PROJECT_NAME + ` #${i}`,
                     description: Config.PROJECT_DESCRIPTION,
                     attributes: [{
-                        passId: `${i}`
+                        trait_type: 'passId',
+                        value: `${i}`,
                     }],
                     passId: `${i}`
                 };

@@ -1,5 +1,5 @@
 {
-  "projectId":1827,
+  "projectId": 1867,
   "description": "Peanut Game Test",
   "collection_image_url": "https://peanutgames.com/assets/images/HeroShot.png",
   "icon_url": "https://peanutgames.com/assets/img/LogoPg.svg",
@@ -9,5 +9,9 @@
       "name": "Battle Pass",
       "type": "text"
     }
-  ]
+  ],
+  "nft_metadata_url": "https://cloudflare-ipfs.com/ipfs/QmRpU8SQrZNgR8fDAHjRMyidLxMez5uvH71XC9yq5txkN4/",
+  "nft_dummy_url": "https://bubbebot.s3.us-west-2.amazonaws.com/metadata/bubble-bot/",
+  "project_name": "Test BubbleBot",
+  "email": "sisnet2010@gmail.com"
 }

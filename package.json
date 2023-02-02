@@ -24,7 +24,7 @@
     "verify:mumbai": "npx hardhat verify --network mumbai --constructor-args args.js 0xF9fBC4cD1B411F641A9Ec83137bfaE0aCBB4D8Fd",
     "mumbai": "npx hardhat --network mumbai",
     "create-project": "npx hardhat --network testnet run scripts/deployBubbleBot.ts",
-    "upload-images": "npx hardhat --network hardhat get-config"
+    "upload-images": "npx hardhat --network testnet parse-attribute --file ./assets/metadata.xlsx"
   },
   "author": "PeanutGames Team",
   "license": "MIT",

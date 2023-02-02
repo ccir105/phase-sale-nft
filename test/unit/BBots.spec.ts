@@ -18,7 +18,7 @@ describe.only('BBots', function () {
 
     function getMerkleTree(elements) {
 
-        return new MerkleTree(elements, web3.utils.sha3, {sort: true});
+        return new MerkleTree(elements, ethers.utils.keccak256, {sort: true});
     }
 
     it('should get the total supply', async () => {
@@ -27,7 +27,7 @@ describe.only('BBots', function () {
     });
 
     it('Should get the current sale status', async () => {
-        let currentStat = await bubbleBot.saleStat();
+        let currentStat = await bubbleBot.getSaleStatus();
         expect(currentStat).to.be.eq(0);
     });
 
@@ -35,20 +35,20 @@ describe.only('BBots', function () {
 
         await bubbleBot.startSale();
 
-        let currentStat = await bubbleBot.saleStat();
+        let currentStat = await bubbleBot.getSaleStatus();
 
         expect(currentStat).to.be.eq(1);
 
         await ethers.provider.send('evm_increaseTime', [(60 * 60 + 1)]);
         await ethers.provider.send('evm_mine', []);
 
-        currentStat = await bubbleBot.saleStat();
+        currentStat = await bubbleBot.getSaleStatus();
         expect(currentStat).to.be.eq(2);
 
         await ethers.provider.send('evm_increaseTime', [(60 * 60 * 24)]);
         await ethers.provider.send('evm_mine', []);
 
-        currentStat = await bubbleBot.saleStat();
+        currentStat = await bubbleBot.getSaleStatus();
         expect(currentStat).to.be.eq(3);
 
     });
@@ -57,7 +57,7 @@ describe.only('BBots', function () {
 
         await bubbleBot.switchSalePhase(60 , 60);
 
-        let currentStat = await bubbleBot.saleStat();
+        let currentStat = await bubbleBot.getSaleStatus();
 
         expect(currentStat).to.be.eq(1);
 
@@ -66,7 +66,7 @@ describe.only('BBots', function () {
     it('should force switch to the whitelist sale phase', async () => {
 
         await bubbleBot.switchSalePhase(0, 60);
-        let currentStat = await bubbleBot.saleStat();
+        let currentStat = await bubbleBot.getSaleStatus();
         expect(currentStat).to.be.eq(2);
 
     });
@@ -75,7 +75,7 @@ describe.only('BBots', function () {
     it('should force switch to the public sale phase', async () => {
 
         await bubbleBot.switchSalePhase(0, 0);
-        let currentStat = await bubbleBot.saleStat();
+        let currentStat = await bubbleBot.getSaleStatus();
         expect(currentStat).to.be.eq(3);
 
     });
@@ -98,7 +98,7 @@ describe.only('BBots', function () {
         it('Should prepare whitelist roots and mint for ftb', async () => {
 
             await bubbleBot.switchSalePhase(60, 60);
-            let currentStat = await bubbleBot.saleStat();
+            let currentStat = await bubbleBot.getSaleStatus();
             expect(currentStat).to.be.eq(1);
 
             await bubbleBot.setWhitelistRoots(whitelistUsers.getHexRoot(), ftbUserList.getHexRoot());
@@ -109,9 +109,14 @@ describe.only('BBots', function () {
                 leafNode
             );
 
-            await bubbleBot.connect(signers[3]).mintBBots(3, hexProofsFtb , 5, {
+            const isWhitelisted = await bubbleBot.connect(signers[3]).verifyFtbWhiteList(hexProofsFtb, 5);
+
+            expect(isWhitelisted).to.be.true;
+
+            await expect(bubbleBot.connect(signers[3]).mintBBots(3, hexProofsFtb , 5, {
                 value: BigInt(0.08 * 3 * 1e18)
-            })
+            })).to.emit(bubbleBot, 'NewMinter')
+                .withArgs(signers[3].address, 3);
 
             let userBalance = await bubbleBot.balanceOf(signers[3].address);
 
@@ -135,7 +140,7 @@ describe.only('BBots', function () {
 
             await bubbleBot.switchSalePhase(0, 60);
 
-            let currentStat = await bubbleBot.saleStat();
+            let currentStat = await bubbleBot.getSaleStatus();
 
             expect(currentStat).to.be.eq(2);
 
@@ -168,7 +173,7 @@ describe.only('BBots', function () {
 
             await bubbleBot.switchSalePhase(0, 0);
 
-            let currentStat = await bubbleBot.saleStat();
+            let currentStat = await bubbleBot.getSaleStatus();
 
             expect(currentStat).to.be.eq(3);
 

@@ -1,6 +1,6 @@
 
 import { ImmutableX, Config, CreateProjectRequest,CreateCollectionRequest, UnsignedMintRequest } from '@imtbl/core-sdk';
-import ImxConfig from '../assets/imx.json';
+import ImxConfig from '../assets/backup.json'
 import fs from 'fs';
 import CONFIG from '../config';
 
@@ -11,12 +11,12 @@ const ImxModule = {
         return new ImmutableX( network );
     },
 
-    async createProject(signer, ethNetwork, {companyName, email, name}) {
+    async createProject(signer, ethNetwork) {
 
         const projectParams: CreateProjectRequest = {
-            company_name: companyName,
-            contact_email: email,
-            name,
+            company_name: CONFIG.APP_NAME,
+            contact_email: ImxConfig.email,
+            name: ImxConfig.project_name
         };
 
         const client = ImxModule.getClient(ethNetwork);
@@ -28,7 +28,7 @@ const ImxModule = {
             );
 
             fs.writeFileSync(
-                './assets/imx.json',
+                './assets/backup.json',
                 JSON.stringify({
                     ...ImxConfig,
                     projectId: createProjectResponse.id
@@ -74,6 +74,7 @@ const ImxModule = {
                 });
             }
             else {
+                console.log(error)
                 process.exit(1);
             }
         }

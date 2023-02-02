@@ -68,7 +68,7 @@ export async function uploadToAws(params): Promise<string> {
 
 export async function fetchWhitelistAddress() {
     // @ts-ignore
-    let [ftbList, premintList] = await Promise.all([axios.get(Utils.requireEnvironmentVariable('FTB_SNAPSHOT_URL')), axios.get(Utils.requireEnvironmentVariable('PREMINT_URL'))]);
+    let [ftbList, premintList] = await Promise.all([axios.get(Config.FTB_SNAPSHOT_URL), axios.get(Config.PREMINT_URL)]);
     ftbList = ftbList.data;
     let whitelistAddress = [...premintList.data.data.map(list => list.wallet)];
 

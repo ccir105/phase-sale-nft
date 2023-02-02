@@ -1,7 +1,8 @@
-
+// @ts-nocheck
 import { urlSource } from "ipfs-http-client";
 import fs from 'fs';
 import {uploadToAws, buildIpfs} from "./base";
+import ReadExcel from 'read-excel-file/node';
 
 import Config from '../config'
 
@@ -9,13 +10,58 @@ const FOLDER_PATH = Config.BUILD_PATH
 
 export default function initTask(task: any) {
 
+    task('parse-attribute', 'Parse Attribute')
+        .addParam('file', 'Excel File')
+        .setAction(async (taskArgs, hre) => {
+
+            if( !fs.existsSync(taskArgs.file) ) return;
+
+            let benExcel = await ReadExcel(taskArgs.file);
+
+            benExcel = benExcel.slice(3);
+
+            const Headings = benExcel.splice(0, 1)[0].slice(2)
+
+            benExcel.map((current, key) => {
+
+                current = current.slice(2);
+
+                const traits = Headings.reduce((_prev, _current, _index) => {
+
+
+                    if( current[_index] ){
+
+                        _prev.push({
+                            trait_type: _current,
+                            value: current[_index]
+                        })
+
+                    }
+
+                    return _prev
+
+                }, []);
+
+                if( traits.length ) {
+                    const metadata = {
+                        edition: key,
+                        name: Config.PROJECT_NAME + '#' + key,
+                        attributes: traits,
+                        description: Config.PROJECT_DESCRIPTION
+                    };
+
+                    console.log('[Edition] ', key);
+
+                    fs.writeFileSync(`./assets/nft-assets/json/${key}.json`, JSON.stringify(metadata))
+                }
+            })
+        });
+
     task('upload-metadata', 'Upload Metadata for nft')
         .setAction(async () => {
             const ipfs = buildIpfs();
 
             const imgPath = `${FOLDER_PATH}/images`;
-            const jsonPath = `${FOLDER_PATH}/json`;
-
 
             const images: any = [];
 
@@ -44,7 +90,7 @@ export default function initTask(task: any) {
             const metadata: any = [];
 
             fs.readdirSync(metadataPath).forEach(file => {
-                const filePath = `${jsonPath}/${file}`;
+                const filePath = `${metadataPath}/${file}`;
                 const nftId = file.split('.')[0];
                 let metadataJson = JSON.parse(fs.readFileSync(filePath).toString());
                 metadataJson.image = `${imgRoodCid}${nftId}.png`;

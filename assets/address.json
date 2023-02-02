@@ -1,1 +1,10 @@
-{"localhost":{"battlePass":"0xAB54D697B3679A65D1eE6d06A3B91e81D099d0b3","robots":"0x07e0Eb4d659Ce47F0DA13B037c8C2DEc67f6924A"},"testnet":{"battlePass":"0x66E63Ad0cF65874168eBA50127849d6841C23c3e","robots":"0x4d107C42044d8cb4ba11a86233172d57bf1623dE"}}
+{
+  "localhost": {
+    "battlePass": "0xaf9278F4bbdc000261887BD878d0A591dc2E2fb6",
+    "robots": "0xDCe04000De8922ac733C7fdD1732d87fec837Fb5"
+  },
+  "testnet": {
+    "battlePass": "0x781B0775ec146a9080de24CFe3e1fd4997fE4bDC",
+    "robots": "0xc1Ba9E5ec50065d128cAE73fDfA8E3a6B892ED6C"
+  }
+}

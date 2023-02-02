@@ -21,7 +21,7 @@ const getConfigObject = (sourceConfig) => ({
     INFURA_KEY: Utils.configParser(sourceConfig, 'string', 'INFURA_KEY', '2aa521366afc4458be10d8745e3753e9'),
     PRIVATE_KEY: Utils.configParser(sourceConfig, 'string', 'PRIVATE_KEY', ''),
     BUILD_PATH: Utils.configParser(sourceConfig, 'string', 'BUILD_PATH', './assets/nft-assets'),
-    MAX_SUPPLY: Utils.configParser(sourceConfig, 'number', 'MAX_SUPPLY', 20)
+    MAX_SUPPLY: Utils.configParser(sourceConfig, 'number', 'MAX_SUPPLY', 100)
 });
 
 export default getConfigObject;

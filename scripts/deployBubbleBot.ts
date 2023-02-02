@@ -32,15 +32,17 @@ async function main() {
 
   await battlePass.deployed();
 
-  const pk = network.config.accounts[0];
+  if( networkName !== 'localhost' ) {
+    const pk = network.config.accounts[0];
 
-  const signer = new ethers.Wallet(pk);
+    const signer = new ethers.Wallet(pk);
 
-  await ImxModule.createCollection(signer, network.name, {
-    name: 'BattlePass Test',
-    address: battlePass.address,
-    url: ''
-  });
+    await ImxModule.createCollection(signer, network.name, {
+      name: 'BattlePass Test',
+      address: battlePass.address,
+      url: ''
+    });
+  }
 
   fs.writeFileSync(
     './assets/address.json',
