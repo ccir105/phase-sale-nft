@@ -3,8 +3,8 @@ import { urlSource } from "ipfs-http-client";
 import fs from 'fs';
 import {uploadToAws, buildIpfs} from "./base";
 import ReadExcel from 'read-excel-file/node';
-
 import Config from '../config'
+import BackUpConfig from '../assets/backup.json'
 
 const FOLDER_PATH = Config.BUILD_PATH
 
@@ -117,18 +117,26 @@ export default function initTask(task: any) {
         addParam('url', 'Image Url')
         .setAction(async (taskArgs) => {
 
+        const imgParam = taskArgs.url.startsWith('http') ? urlSource(taskArgs.url) : await fs.promises.readFile(taskArgs.url);
         const ipfs = buildIpfs();
-        const file = await ipfs.add(urlSource(taskArgs.url))
+        const file = await ipfs.add(imgParam)
         console.log('[-] Image', `https://cloudflare-ipfs.com/ipfs/${file.cid.toString()}`)
     });
 
     task('dummy-metadata', 'Upload Dummy Metadata before reveal')
-        .addParam('image', 'Image Url')
+        .addOptionalParam('image', 'Image Url')
         .setAction(async (taskArgs, hre) => {
 
             const ipfs = buildIpfs();
-            const imageFile = await ipfs.add(urlSource(taskArgs.image))
-            const imgUrl = `https://cloudflare-ipfs.com/ipfs/${imageFile.cid.toString()}`;
+            let imgUrl;
+
+            if( taskArgs.image ) {
+                const imageFile = await ipfs.add(urlSource(taskArgs.image))
+                imgUrl = `https://cloudflare-ipfs.com/ipfs/${imageFile.cid.toString()}`;
+            }
+            else {
+                imgUrl = BackUpConfig.collection_image_url;
+            }
 
             const maxSupply = Config.MAX_SUPPLY;
 

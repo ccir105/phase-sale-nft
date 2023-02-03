@@ -19,7 +19,7 @@ contract BattlePass is ERC721Royalty, Ownable {
         _;
     }
 
-    constructor(address _imx, address royaltyReceiver) ERC721("BATTLE PASS", "BTL-PASS") {
+    constructor(address _imx, address royaltyReceiver) ERC721("TEST PASS", "TST-PASS") {
         imx = _imx;
         _setDefaultRoyalty(royaltyReceiver, 250);
     }

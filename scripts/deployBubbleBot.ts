@@ -38,7 +38,7 @@ async function main() {
     const signer = new ethers.Wallet(pk);
 
     await ImxModule.createCollection(signer, network.name, {
-      name: 'BattlePass Test',
+      name: Config.PROJECT_NAME,
       address: battlePass.address,
       url: ''
     });

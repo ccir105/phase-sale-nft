@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/node:14.17.0
+      - image: circleci/node:16.14.2
     steps:
       - checkout
       - restore_cache:
@@ -24,7 +24,7 @@ jobs:
           command: "yarn lint"
       - run:
           name: Prettier Check
-          command: "yarn prettier:check"
+          command: "yarn format:check"
       - run:
           name: Compile contracts
           command: "npx hardhat compile"
@@ -36,7 +36,7 @@ jobs:
           command: "yarn test"
       - run:
           name: Coverage
-          command: "yarn coverage"
+          command: "yarn test:unit:coverage"
       - run:
           name: Send Report
           command: |

@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {ethers, web3} from 'hardhat';
+import {ethers} from 'hardhat';
 import {MerkleTree} from "merkletreejs";
 
 describe.only('BBots', function () {
@@ -109,7 +109,7 @@ describe.only('BBots', function () {
                 leafNode
             );
 
-            const isWhitelisted = await bubbleBot.connect(signers[3]).verifyFtbWhiteList(hexProofsFtb, 5);
+            const isWhitelisted = await bubbleBot.verifyFtbWhiteList(signers[3].address, hexProofsFtb, 5);
 
             expect(isWhitelisted).to.be.true;
 
@@ -246,5 +246,6 @@ describe.only('BBots', function () {
           const tokenUri = await bubbleBot.tokenURI(1);
           expect(tokenUri).to.be.eq('https://dev.peanuthub.com/nft/1');
         });
+
     });
 });

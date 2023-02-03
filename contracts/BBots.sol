@@ -41,7 +41,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
 
     event NewMinter(address indexed minter, uint256 qty);
 
-    constructor(address _royaltyReceiver) ERC721A("BubbleBots-Test", "BBOTS-TEST") {
+    constructor(address _royaltyReceiver) ERC721A("NFT-Test-V1", "NFT-TEST-V1") {
         _setDefaultRoyalty(_royaltyReceiver, 250);
         treasury = _royaltyReceiver;
 
@@ -90,7 +90,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         uint256 approvedQt
     ) external payable MintValidation(quantity) {
         if (_isFtbSale()) {
-            require(verifyFtbWhiteList(merkleProof, approvedQt), "NOT_WHITELISTED");
+            require(verifyFtbWhiteList(msg.sender, merkleProof, approvedQt), "NOT_WHITELISTED");
 
             require(balanceOf(msg.sender).add(quantity) <= approvedQt, "EXCEEDS_MAX");
 
@@ -98,7 +98,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         }
 
         if (_isWhiteListSale()) {
-            require(verifyNormalWhiteList(merkleProof), "NOT_WHITELISTED");
+            require(verifyNormalWhiteList(msg.sender, merkleProof), "NOT_WHITELISTED");
 
             require(balanceOf(msg.sender).add(quantity) <= MaxMint, "EXCEEDS_MAX");
 
@@ -118,8 +118,8 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         return _verifyIfWhiteListed(ftbHolderRoot, _merkleProof, merkleLeaf);
     }
 
-    function verifyNormalWhiteList(bytes32[] calldata _merkleProof) public view returns (bool) {
-        bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender));
+    function verifyNormalWhiteList(address _user, bytes32[] calldata _merkleProof) public view returns (bool) {
+        bytes32 merkleLeaf = keccak256(abi.encodePacked(_user));
 
         return _verifyIfWhiteListed(whitelistRoot, _merkleProof, merkleLeaf);
     }

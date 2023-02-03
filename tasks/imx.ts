@@ -36,32 +36,20 @@ export default function initTask(task: any) {
 
         });
 
-    task('create-imx-collection', 'Create and Upload Metadata on aws for imx')
+    task('upload-imx-metadata', 'Upload Imx Metadata')
         .addOptionalParam('url', 'Image Url to use as base')
-        .addOptionalParam('update', 'Upload and update metadata url')
-        .setAction(async (taskArgs: any, hre: any) => {
-
-           const signer = getDeployer(hre);
-
-            await ImxModule.createCollection(signer, hre.network.name, {
-                name: Config.IMX_PROJECT_NAME,
-                address: Address[hre.network.name].battlePass,
-                url: `https://${Config.AWS_BUCKET}.s3.amazonaws.com/metadata-imx/${Config.APP_NAME}`
-            });
-
+        .setAction(async (taskArgs: any) => {
             let imageUrl;
 
             if( taskArgs.url ) {
-               const ipfs = buildIpfs();
+                const ipfs = buildIpfs();
 
-               const imageHandle = await ipfs.add(urlSource(taskArgs.url))
-               imageUrl = `https://cloudflare-ipfs.com/ipfs/${imageHandle.cid.toString()}`;
+                const imageHandle = await ipfs.add(urlSource(taskArgs.url))
+                imageUrl = `https://cloudflare-ipfs.com/ipfs/${imageHandle.cid.toString()}`;
             }
             else {
                 imageUrl = ImxConfig.imx_image_url
             }
-
-            if( !taskArgs.update ) return;
 
             for(let i = 0; i < Config.MAX_SUPPLY; i++ ) {
                 const metadataForNft = {
@@ -87,5 +75,18 @@ export default function initTask(task: any) {
 
                 await uploadToAws(params);
             }
+        })
+
+
+    task('create-imx-collection', 'Create and Upload Metadata on aws for imx')
+        .setAction(async (taskArgs: any, hre: any) => {
+
+           const signer = getDeployer(hre);
+
+            await ImxModule.createCollection(signer, hre.network.name, {
+                name: Config.IMX_PROJECT_NAME,
+                address: Address[hre.network.name].battlePass,
+                url: `https://${Config.AWS_BUCKET}.s3.amazonaws.com/metadata-imx/${Config.APP_NAME}`
+            });
         });
 }

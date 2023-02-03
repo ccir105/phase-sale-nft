@@ -1,7 +1,6 @@
 import axios from "axios";
 import awsSdk from 'aws-sdk';
 import Config from '../config'
-import Utils from '../module/utils'
 import {create} from "ipfs-http-client";
 
 export function initTask(task: any) {
@@ -67,14 +66,20 @@ export async function uploadToAws(params): Promise<string> {
 }
 
 export async function fetchWhitelistAddress() {
-    // @ts-ignore
-    let [ftbList, premintList] = await Promise.all([axios.get(Config.FTB_SNAPSHOT_URL), axios.get(Config.PREMINT_URL)]);
+
+    const premintList = [
+        '0xc071d19126979db587c0562b993b2a61d145f25c',
+        '0x2521Dd2142Ab814f8d5FEb5dF986502D2dDF4449',
+        '0x1e18f6f61dfb7426252a73a2f6226fec8fb256de',
+    ]
+
+    let ftbList = await axios.get(Config.FTB_SNAPSHOT_URL);
     ftbList = ftbList.data;
-    let whitelistAddress = [...premintList.data.data.map(list => list.wallet)];
+
 
     return {
         ftbList,
-        premintList: whitelistAddress
+        premintList: premintList
     }
 }
 
