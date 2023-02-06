@@ -47,6 +47,7 @@ const config: HardhatUserConfig | any = {
     live: {
       url: `https://mainnet.infura.io/v3/${Config.INFURA_KEY}`,
       chainId: 1,
+      accounts: [Config.PRIVATE_KEY || accounts.privateKey[0]],
     },
     mumbai: {
       url: `https://rpc-mumbai.maticvigil.com`,
