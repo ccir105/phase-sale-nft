@@ -39,7 +39,7 @@ jobs:
           command: "yarn lint"
       - run:
           name: Prettier Check
-          command: "yarn format:check"
+          command: "yarn prettier:check"
       - run:
           name: Compile contracts
           command: "npx hardhat compile"
@@ -49,13 +49,6 @@ jobs:
       - run:
           name: Test
           command: "yarn test"
-      - run:
-          name: Coverage
-          command: "yarn test:unit:coverage"
-      - run:
-          name: Send Report
-          command: |
-            bash <(curl -s https://codecov.io/bash)
 
 workflows:
   version: 2.1
