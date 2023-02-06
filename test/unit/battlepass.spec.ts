@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {ethers} from 'hardhat';
 
-describe.only('BattlePass', function () {
+describe('BattlePass', function () {
     let bubbleBot;
     let signers;
 

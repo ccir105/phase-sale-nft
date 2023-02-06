@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {ethers} from 'hardhat';
 import {MerkleTree} from "merkletreejs";
 
-describe.only('BBots', function () {
+describe('BBots', function () {
     let bubbleBot;
     let signers;
 
