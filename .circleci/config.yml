@@ -41,9 +41,6 @@ jobs:
           name: Prettier Check
           command: "yarn prettier:check"
       - run:
-          name: Compile contracts
-          command: "npx hardhat compile"
-      - run:
           name: Test Only
           command: "yarn test:dotonly"
       - run:
