@@ -32,6 +32,9 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     uint256 public costPrice = 0.08 ether;
     address immutable treasury;
 
+    mapping(address => uint256) public wlMints;
+    mapping(address => uint256) public ftbMints;
+
     modifier MintValidation(uint256 quantity) {
         require(_saleStarted(), "SALE_NOT_STARTED");
         require(totalSupply() + quantity <= MAX_SUPPLY, "EXCEEDS_SUPPLY");
@@ -47,6 +50,10 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
 
         mintConfig.wlWindow = 60 * 60 * 24; //a day
         mintConfig.ftbWindow = 60 * 60; //an hour
+    }
+
+    function _startTokenId() internal pure override returns (uint256) {
+        return 1;
     }
 
     function _saleStarted() internal view returns (bool) {
@@ -92,7 +99,11 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         if (_isFtbSale()) {
             require(verifyFtbWhiteList(msg.sender, merkleProof, approvedQt), "NOT_WHITELISTED");
 
-            require(balanceOf(msg.sender).add(quantity) <= approvedQt, "EXCEEDS_MAX");
+            uint256 totalMints = ftbMints[msg.sender];
+
+            require(totalMints.add(quantity) <= approvedQt, "EXCEEDS_MAX");
+
+            ftbMints[msg.sender] = totalMints + quantity;
 
             _mintRobot(msg.sender, quantity);
         }
@@ -100,7 +111,11 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         if (_isWhiteListSale()) {
             require(verifyNormalWhiteList(msg.sender, merkleProof), "NOT_WHITELISTED");
 
-            require(balanceOf(msg.sender).add(quantity) <= MaxMint, "EXCEEDS_MAX");
+            uint256 totalWhitelistMints = wlMints[msg.sender];
+
+            require(totalWhitelistMints.add(quantity) <= MaxMint, "EXCEEDS_MAX");
+
+            wlMints[msg.sender] = totalWhitelistMints + quantity;
 
             _mintRobot(msg.sender, quantity);
         }
@@ -112,8 +127,12 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         _withdrawEth();
     }
 
-    function verifyFtbWhiteList(bytes32[] calldata _merkleProof, uint256 quantity) public view returns (bool) {
-        bytes32 merkleLeaf = keccak256(abi.encodePacked(msg.sender, quantity));
+    function verifyFtbWhiteList(
+        address _user,
+        bytes32[] calldata _merkleProof,
+        uint256 quantity
+    ) public view returns (bool) {
+        bytes32 merkleLeaf = keccak256(abi.encodePacked(_user, quantity));
 
         return _verifyIfWhiteListed(ftbHolderRoot, _merkleProof, merkleLeaf);
     }

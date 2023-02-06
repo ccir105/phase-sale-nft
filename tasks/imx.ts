@@ -89,4 +89,14 @@ export default function initTask(task: any) {
                 url: `https://${Config.AWS_BUCKET}.s3.amazonaws.com/metadata-imx/${Config.APP_NAME}`
             });
         });
+
+    task('update-imx-collection', 'Update Imx Collection')
+        .setAction(async (taskArgs: any, hre: any) => {
+            const signer = getDeployer(hre);
+
+            await ImxModule.updateCollection(signer, hre.network.name, {
+                address: Address[hre.network.name].battlePass,
+                url: `https://${Config.AWS_BUCKET}.s3.amazonaws.com/metadata-imx/${Config.APP_NAME}`
+            });
+        });
 }
