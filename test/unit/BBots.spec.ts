@@ -1,8 +1,8 @@
 import {expect} from 'chai';
-import {ethers, web3} from 'hardhat';
+import {ethers} from 'hardhat';
 import {MerkleTree} from "merkletreejs";
 
-describe.only('BBots', function () {
+describe('BBots', function () {
     let bubbleBot;
     let signers;
 
@@ -84,14 +84,25 @@ describe.only('BBots', function () {
 
         let whitelistUsers, ftbUserList;
 
+        function getLeaf( address, amt = 0 ) {
+            const types = ['address'];
+            const values = [address];
+            if( amt ){
+                types.push('uint256');
+                values.push(amt);
+            }
+
+            return ethers.utils.keccak256(ethers.utils.solidityPack(types, values));
+        }
+
         before(() => {
 
             whitelistUsers = getMerkleTree(
-                signers.map(signer => ethers.utils.keccak256(signer.address))
+                signers.map(signer => getLeaf(signer.address))
             )
 
             ftbUserList = getMerkleTree(
-                signers.map(signer => ethers.utils.keccak256(ethers.utils.solidityPack(['address', 'uint256'], [signer.address, 5])))
+                signers.map(signer => getLeaf(signer.address, 5))
             )
         });
 
@@ -103,13 +114,13 @@ describe.only('BBots', function () {
 
             await bubbleBot.setWhitelistRoots(whitelistUsers.getHexRoot(), ftbUserList.getHexRoot());
 
-            const leafNode = ethers.utils.keccak256(ethers.utils.solidityPack(['address', 'uint256'], [signers[3].address, 5]));
+            const leafNode = getLeaf(signers[3].address, 5);
 
             const hexProofsFtb = ftbUserList.getHexProof(
                 leafNode
             );
 
-            const isWhitelisted = await bubbleBot.connect(signers[3]).verifyFtbWhiteList(hexProofsFtb, 5);
+            const isWhitelisted = await bubbleBot.verifyFtbWhiteList(signers[3].address, hexProofsFtb, 5);
 
             expect(isWhitelisted).to.be.true;
 
@@ -119,7 +130,9 @@ describe.only('BBots', function () {
                 .withArgs(signers[3].address, 3);
 
             let userBalance = await bubbleBot.balanceOf(signers[3].address);
+            const ids = await bubbleBot.tokensOfOwner(signers[3].address);
 
+            expect(ids[0].toNumber()).to.be.eq(1);
             expect(userBalance.toNumber()).to.be.eq(3)
 
             await expect(bubbleBot.connect(signers[3]).mintBBots(1, hexProofsFtb , 2, {
@@ -144,6 +157,18 @@ describe.only('BBots', function () {
 
             expect(currentStat).to.be.eq(2);
 
+            const userProof = whitelistUsers.getHexProof(
+                getLeaf(signers[3].address)
+            );
+
+            await bubbleBot.connect(signers[3]).mintBBots(3, userProof , 0, {
+                value: BigInt(0.08 * 3 * 1e18)
+            });
+
+            let userBalance = await bubbleBot.balanceOf(signers[3].address);
+
+            expect(userBalance.toNumber()).to.be.eq(6);
+
             const leafNode = ethers.utils.keccak256(ethers.utils.solidityPack(['address'], [signers[1].address]));
 
             const hexProofsWl = whitelistUsers.getHexProof(
@@ -154,7 +179,7 @@ describe.only('BBots', function () {
                 value: BigInt(0.08 * 3 * 1e18)
             })
 
-            let userBalance = await bubbleBot.balanceOf(signers[1].address);
+            userBalance = await bubbleBot.balanceOf(signers[1].address);
 
             expect(userBalance.toNumber()).to.be.eq(3)
 
@@ -246,5 +271,6 @@ describe.only('BBots', function () {
           const tokenUri = await bubbleBot.tokenURI(1);
           expect(tokenUri).to.be.eq('https://dev.peanuthub.com/nft/1');
         });
+
     });
 });

@@ -20,3 +20,7 @@ This contract is used to create the ScrapBox NUTS Token with a maximum supply of
 
 # ScrapBoard
 This contract is a test contract to support the ScrapBoard Game.
+
+
+### Commands: 
+

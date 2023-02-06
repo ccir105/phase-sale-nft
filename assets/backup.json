@@ -1,17 +1,19 @@
 {
-  "projectId": 1867,
-  "description": "Peanut Game Test",
-  "collection_image_url": "https://peanutgames.com/assets/images/HeroShot.png",
-  "icon_url": "https://peanutgames.com/assets/img/LogoPg.svg",
-  "imx_image_url": "https://cloudflare-ipfs.com/ipfs/QmZ5YECGXUR4uCTssR9LCnNj8uEisS5JFXgA4RyCThRT5z",
+  "projectId": 10117,
+  "projectIdDev": 1919,
+  "description": "Test Project",
+  "collection_image_url": "https://cloudflare-ipfs.com/ipfs/QmUfuSuhNY5wndZk5UL5xLCAMPzzLos9h5S5ooPBgtxP5N",
+  "icon_url": "https://cloudflare-ipfs.com/ipfs/QmXVShYPgEonqBccCouMrcPDMJW2sx52HSRHYcBEnRzgjA",
+  "imx_image_url": "https://cloudflare-ipfs.com/ipfs/QmShXjE6QJ6cPjgBawjsqV2jHvzXPWzeMnrJu1znoYP81E",
   "metadata": [
     {
-      "name": "Battle Pass",
+      "name": "Test Pass",
       "type": "text"
     }
   ],
-  "nft_metadata_url": "https://cloudflare-ipfs.com/ipfs/QmRpU8SQrZNgR8fDAHjRMyidLxMez5uvH71XC9yq5txkN4/",
+  "imx_metadata_url": "https://bubbebot.s3.us-west-2.amazonaws.com/metadata-imx/Test-Project-1/",
+  "nft_metadata_url": "https://bubbebot.s3.us-west-2.amazonaws.com/metadata/Test-Project-1/",
   "nft_dummy_url": "https://bubbebot.s3.us-west-2.amazonaws.com/metadata/bubble-bot/",
-  "project_name": "Test BubbleBot",
+  "project_name": "Test Project1",
   "email": "sisnet2010@gmail.com"
 }

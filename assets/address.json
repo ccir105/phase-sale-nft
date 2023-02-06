@@ -4,7 +4,11 @@
     "robots": "0xDCe04000De8922ac733C7fdD1732d87fec837Fb5"
   },
   "testnet": {
-    "battlePass": "0x781B0775ec146a9080de24CFe3e1fd4997fE4bDC",
-    "robots": "0xc1Ba9E5ec50065d128cAE73fDfA8E3a6B892ED6C"
+    "battlePass": "0x9466273182C82EEc4aEb6CCAF881B1Ef242Cdf67",
+    "robots": "0x008528425e20595A0cF51B376489EFf64A3Dd8e1"
+  },
+  "live": {
+    "battlePass": "0x2d9a4c62371fca80cf6f0d2523a4faea910b7119",
+    "robots": "0x42a51170a3da56791f500eff30d1204512d351d3"
   }
 }

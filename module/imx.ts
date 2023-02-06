@@ -14,7 +14,7 @@ const ImxModule = {
     async createProject(signer, ethNetwork) {
 
         const projectParams: CreateProjectRequest = {
-            company_name: CONFIG.APP_NAME,
+            company_name: CONFIG.PROJECT_NAME,
             contact_email: ImxConfig.email,
             name: ImxConfig.project_name
         };
@@ -27,11 +27,13 @@ const ImxModule = {
                 projectParams,
             );
 
+            const backupKey = ethNetwork === 'live' ? "projectId" : 'projectIdDev';
+
             fs.writeFileSync(
                 './assets/backup.json',
                 JSON.stringify({
                     ...ImxConfig,
-                    projectId: createProjectResponse.id
+                    [backupKey]: createProjectResponse.id
                 }),
             );
 
@@ -51,7 +53,7 @@ const ImxModule = {
             contract_address: address,
             name,
             owner_public_key: signer.publicKey,
-            project_id: ImxConfig.projectId,
+            project_id: ethNetwork === 'live' ? ImxConfig.projectId : ImxConfig.projectIdDev,
             collection_image_url: ImxConfig.collection_image_url,
             description: ImxConfig.description,
             icon_url: ImxConfig.icon_url,

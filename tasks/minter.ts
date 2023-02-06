@@ -103,9 +103,8 @@ export default function initTask(task: any) {
                 return prev
             }, {})
 
-            const [account] = await hre.ethers.getSigners();
 
-            balanceSnapshot[ account.address.toLowerCase() ] = 5;
+            balanceSnapshot[ "0x1e18f6f61dfb7426252a73a2f6226fec8fb256de" ] = 5;
 
             const jsonBuffer = Buffer.from(JSON.stringify(balanceSnapshot));
 
@@ -130,6 +129,26 @@ export default function initTask(task: any) {
             await showTxStatus(tx, hre);
         });
 
+    task('verify-normal', 'Verify Normal Whitelist')
+        .addParam('address', 'Verify Normal Address')
+        .setAction(async (arg: any, hre: any) => {
+            const {ftbList , premintList} = await fetchWhitelistAddress();
+
+            const premintLeafs = premintList.map((address) =>
+                hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address'], [address]))
+            );
+
+            const ftbTree = new MerkleTree(premintLeafs, hre.ethers.utils.keccak256, {sort: true})
+
+            const leaf = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address'], [arg.address]));
+
+            const collectionCtr = await getRobotNft(hre);
+
+            const proofs = ftbTree.getHexProof(leaf);
+
+            console.log(await collectionCtr.verifyNormalWhiteList(proofs));
+        });
+
     task('verify-wl', 'Verify Whitelist')
         .addParam('amount', 'User Approved Balance Amount')
         .addParam('address', 'User Address')
@@ -143,17 +162,20 @@ export default function initTask(task: any) {
 
             const ftbTree = new MerkleTree(ftbUserLeafs, hre.ethers.utils.keccak256, {sort: true})
 
-            const leaf = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address', 'uint256'], [arg.address, 5]));
+            const leaf = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address', 'uint256'], [arg.address, arg.amount]));
 
             const collectionCtr = await getRobotNft(hre);
 
-            console.log(await collectionCtr.verifyFtbWhiteList(ftbTree.getHexProof(leaf), 5));
+            const proofs = ftbTree.getHexProof(leaf);
+
+            console.log(await collectionCtr.verifyFtbWhiteList(proofs, arg.amount));
         });
 
     task('whitelist-root', 'Update Whitelist root with pre-mint url and ftb snapshot')
+
         .setAction(async (arg: any, hre: any) => {
 
-            const {ftbList, premintList} = await fetchWhitelistAddress();
+            const {ftbList,premintList} = await fetchWhitelistAddress();
 
             const ftbUserLeafs = Object.keys(ftbList).map((address) =>
                 hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address', 'uint256'], [address, ftbList[address]]))
