@@ -161,13 +161,13 @@ describe('BBots', function () {
                 getLeaf(signers[3].address)
             );
 
-            await bubbleBot.connect(signers[3]).mintBBots(3, userProof , 0, {
-                value: BigInt(0.08 * 3 * 1e18)
+            await bubbleBot.connect(signers[3]).mintBBots(2, userProof , 0, {
+                value: BigInt(0.08 * 2 * 1e18)
             });
 
             let userBalance = await bubbleBot.balanceOf(signers[3].address);
 
-            expect(userBalance.toNumber()).to.be.eq(6);
+            expect(userBalance.toNumber()).to.be.eq(5);
 
             const leafNode = ethers.utils.keccak256(ethers.utils.solidityPack(['address'], [signers[1].address]));
 

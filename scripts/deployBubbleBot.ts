@@ -15,8 +15,7 @@ async function main() {
   if( networkName === 'live') {
     imxWallet = Config.IMX_PROD
     multiSigWallet = Config.MULTI_SIG_WALLET;
-  }
-  else {
+  } else {
     imxWallet = Config.IMX_SANDBOX;
     multiSigWallet = signers[0].address;
   }
