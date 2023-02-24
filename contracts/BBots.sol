@@ -11,7 +11,7 @@ import "hardhat/console.sol";
 contract BBots is ERC721AQueryable, ERC2981, Ownable {
     uint256 public constant MAX_SUPPLY = 999;
 
-    uint256 public constant MaxMint = 3;
+    uint256 public maxMintWL = 2;
 
     string public tokenBaseURI;
 
@@ -29,7 +29,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     bytes32 whitelistRoot;
     bytes32 ftbHolderRoot;
 
-    uint256 public costPrice = 0.08 ether;
+    uint256 public mintPrice = 0.0769 ether;
     address immutable treasury;
 
     mapping(address => uint256) public wlMints;
@@ -38,7 +38,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     modifier MintValidation(uint256 quantity) {
         require(_saleStarted(), "SALE_NOT_STARTED");
         require(totalSupply() + quantity <= MAX_SUPPLY, "EXCEEDS_SUPPLY");
-        require(msg.value >= costPrice * quantity, "MINT_FAILED");
+        require(msg.value >= mintPrice * quantity, "INSUFFICIENT_AMOUNT");
         _;
     }
 
@@ -113,7 +113,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
 
             uint256 totalWhitelistMints = wlMints[msg.sender];
 
-            require(totalWhitelistMints.add(quantity) <= MaxMint, "EXCEEDS_MAX");
+            require(totalWhitelistMints.add(quantity) <= maxMintWL, "EXCEEDS_MAX");
 
             wlMints[msg.sender] = totalWhitelistMints + quantity;
 
@@ -155,6 +155,10 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         tokenBaseURI = baseURI;
     }
 
+    function updateMaxMintWL(uint256 _maxMintWL) external onlyOwner {
+        maxMintWL = _maxMintWL;
+    }
+
     function startedTime() external view returns (uint256) {
         return mintConfig.startTime;
     }
@@ -177,8 +181,8 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
         return 0;
     }
 
-    function updateCostPrice(uint256 _price) external onlyOwner {
-        costPrice = _price;
+    function updateMintPrice(uint256 _mintPrice) external onlyOwner {
+        mintPrice = _mintPrice;
     }
 
     function setWhitelistRoots(bytes32 _whiteListRoot, bytes32 _ftbHolderRoot) external onlyOwner {

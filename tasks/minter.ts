@@ -50,7 +50,7 @@ export default function initTask(task: any) {
         .setAction(async (taskArgs: any, hre: any) => {
             let price = hre.ethers.utils.parseEther(taskArgs.price)
             let minter = await getRobotNft(hre);
-            let tx = await minter.updateCostPrice(price);
+            let tx = await minter.updateMintPrice(price);
             await showTxStatus(tx, hre);
     })
 
