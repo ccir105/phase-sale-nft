@@ -38,7 +38,7 @@ contract BBots is ERC721AQueryable, ERC2981, Ownable {
     modifier MintValidation(uint256 quantity) {
         require(_saleStarted(), "SALE_NOT_STARTED");
         require(totalSupply() + quantity <= MAX_SUPPLY, "EXCEEDS_SUPPLY");
-        require(msg.value >= mintPrice * quantity, "MINT_FAILED");
+        require(msg.value >= mintPrice * quantity, "INSUFFICIENT_AMOUNT");
         _;
     }
 
