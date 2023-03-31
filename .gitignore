@@ -5,7 +5,10 @@ coverage
 coverage.json
 typechain
 package-lock.json
-
+/test/mock/accounts.json
+assets/nft-assets/build/
+assets/nft-assets/json-backup
+assets/nft-assets/json
 #Hardhat files
 cache
 artifacts
